@@ -1,27 +1,31 @@
-'use client';
+'use client'
+import { IconLoader3, IconSend2 } from '@tabler/icons-react';
+import axios from 'axios';
 import { useFormik } from 'formik';
-import React from 'react'
+import { useRouter } from 'next/navigation';
+import React from 'react';
+import toast from 'react-hot-toast';
 import * as Yup from 'yup';
 
 const SignupSchema = Yup.object().shape({
   name: Yup.string()
     .min(2, 'Too Short!')
     .max(50, 'Too Long!')
-    .required('kaap kyu rhi ho'),
+    .required('Naam nhi hai kya?'),
   email: Yup.string().email('Invalid email').required('Required'),
-  password: Yup.string().required('Tu hai kon re')
-  .matches(/[a-z]/, 'Lowercase Letter is required')
-  .matches(/[A-Z]/, 'Uppercase Letter is required')
-  .matches(/[0-9]/, 'at least 1 number or special character')
-  .min(8, 'Minimum 8 characters required')
-  .matches(/[\W]/, 'at least 1 special character is required'),
+  password: Yup.string().required('Password is required')
+  .matches(/[a-z]/, 'Lowercase letter is required')
+  .matches(/[A-Z]/, 'Uppercase letter is required')
+  .matches(/[0-9]/, 'Number is required')
+  .matches(/[\W]/, 'Special character is required'),
   confirmPassword: Yup.string().required('Confirm Password is required')
   .oneOf([Yup.ref('password'), null], 'Passwords must match')
 });
 
-const page1 = () => {
+const Signup = () => {
+   const router =  useRouter();
 
-  // initializing formik 
+  // initializing formik
   const signupForm = useFormik({
     initialValues: {
       name: '',
@@ -29,16 +33,29 @@ const page1 = () => {
       password: '',
       confirmPassword: ''
     },
-    onSubmit: (value) => {
+    onSubmit: (value, {resetForm,setSubmitting}) => {
       console.log(value);
-      // send values to backend 
+
+      // send values to backend
+      // send a post request to backend
+      axios.post('http://localhost:5000/user/add', value)
+      .then((result) => {
+        toast.success('User registered successfully');
+        resetForm();
+        router.push('/login');
+      }).catch((err) => {
+        console.log(err);
+        toast.error('Something went wrong');
+        setSubmitting(false);
+      });
+
     },
     validationSchema: SignupSchema
-
   })
 
   return (
     <div className='max-w-xl mx-auto'>
+
       <div className="mt-7 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-900 dark:border-neutral-700">
         <div className="p-4 sm:p-7">
           <div className="text-center">
@@ -93,7 +110,7 @@ const page1 = () => {
             <form onSubmit={signupForm.handleSubmit}>
               <div className="grid gap-y-4">
                 {/* Form Group */}
-                <div >
+                <div>
                   <label
                     htmlFor="name"
                     className="block text-sm mb-2 dark:text-white"
@@ -106,7 +123,7 @@ const page1 = () => {
                       id="name"
                       onChange={signupForm.handleChange}
                       value={signupForm.values.name}
-                      className="py-3 border px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                      className="border py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                       required=""
                       aria-describedby="email-error"
                     />
@@ -126,17 +143,15 @@ const page1 = () => {
                   {
                     (signupForm.touched.name && signupForm.errors.name) &&
                     (
-                      <p className=" text-xs text-red-600 mt-2" id="email-error">
+                      <p className="text-xs text-red-600 mt-2" id="email-error">
                         {signupForm.errors.name}
                       </p>
                     )
                   }
-
                 </div>
                 {/* End Form Group */}
                 {/* Form Group */}
-                {/* Form Group */}
-                <div >
+                <div>
                   <label
                     htmlFor="email"
                     className="block text-sm mb-2 dark:text-white"
@@ -149,7 +164,7 @@ const page1 = () => {
                       id="email"
                       onChange={signupForm.handleChange}
                       value={signupForm.values.email}
-                      className="py-3 border px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                      className="border py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                       required=""
                       aria-describedby="email-error"
                     />
@@ -169,7 +184,7 @@ const page1 = () => {
                   {
                     (signupForm.touched.email && signupForm.errors.email) &&
                     (
-                      <p className=" text-xs text-red-600 mt-2" id="email-error">
+                      <p className="text-xs text-red-600 mt-2" id="email-error">
                         {signupForm.errors.email}
                       </p>
                     )
@@ -186,11 +201,11 @@ const page1 = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type="password"
+                      type="text"
                       id="password"
                       onChange={signupForm.handleChange}
                       value={signupForm.values.password}
-                      className="py-3 border px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                      className="border py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                       required=""
                       aria-describedby="password-error"
                     />
@@ -210,7 +225,7 @@ const page1 = () => {
                   {
                     (signupForm.touched.password && signupForm.errors.password) &&
                     (
-                      <p className=" text-xs text-red-600 mt-2" id="email-error">
+                      <p className="text-xs text-red-600 mt-2" id="email-error">
                         {signupForm.errors.password}
                       </p>
                     )
@@ -227,11 +242,11 @@ const page1 = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type="password"
+                      type="text"
                       id="confirmPassword"
                       onChange={signupForm.handleChange}
                       value={signupForm.values.confirmPassword}
-                      className="py-3 border px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+                      className="border py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
                       required=""
                       aria-describedby="confirm-password-error"
                     />
@@ -251,7 +266,7 @@ const page1 = () => {
                   {
                     (signupForm.touched.confirmPassword && signupForm.errors.confirmPassword) &&
                     (
-                      <p className=" text-xs text-red-600 mt-2" id="email-error">
+                      <p className="text-xs text-red-600 mt-2" id="email-error">
                         {signupForm.errors.confirmPassword}
                       </p>
                     )
@@ -265,7 +280,7 @@ const page1 = () => {
                       id="remember-me"
                       name="remember-me"
                       type="checkbox"
-                      className="shrink-0 mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
+                      className="border shrink-0 mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
                     />
                   </div>
                   <div className="ms-3">
@@ -282,9 +297,14 @@ const page1 = () => {
                 </div>
                 {/* End Checkbox */}
                 <button
+                disabled={signupForm.isSubmitting}
                   type="submit"
                   className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
                 >
+                  {
+                    signupForm.isSubmitting ? <IconLoader3 className='animate-spin'/>:
+                    <IconSend2/>
+                  }
                   Sign up
                 </button>
               </div>
@@ -294,8 +314,9 @@ const page1 = () => {
         </div>
       </div>
 
+
     </div>
   )
 }
 
-export default page1;
+export default Signup;
